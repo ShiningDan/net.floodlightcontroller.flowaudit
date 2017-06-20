@@ -236,10 +236,10 @@ public class SwitchResourceBase extends ServerResource {
 	
 	
 	// get port count
-	public static Map<String, PortCounter> getPortCounter(String ip, String port) {
+	public static Map<String, Map<String, PortCounter>> getPortCounter(String ip, String port) {
 		
 		try {
-			Map<String, PortCounter> switchPortCounter= new HashMap<String, PortCounter>();
+			Map<String, Map<String, PortCounter>> switchPortCounter= new HashMap<String, Map<String, PortCounter>>();
 			InputStreamReader intopo = new InputStreamReader(new URL("http://" + ip + ":" + port + "/wm/core/switch/all/port/json").openStream());
 			StringBuilder input = new StringBuilder();
 			int ch;
@@ -257,7 +257,11 @@ public class SwitchResourceBase extends ServerResource {
 					for (int j = 0; j < portCounter.length(); j++) {
 						JSONObject pcLoop = portCounter.getJSONObject(j);
 						PortCounter pc = new PortCounter(pcLoop);
-						switchPortCounter.put(switchId, pc);
+						
+						if(!switchPortCounter.containsKey(switchId)) {
+							switchPortCounter.put(switchId, new HashMap<String, PortCounter>());
+						}
+						switchPortCounter.get(switchId).put(pc.portNumber, pc);
 					}
 				}
 				
