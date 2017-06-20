@@ -2,9 +2,11 @@ package net.floodlightcontroller.flowaudit;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Stack;
 
 import org.restlet.resource.Get;
@@ -21,8 +23,8 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 	private static Map<String, Integer> prevSwitchInputPackets = new HashMap<String, Integer>();
 	private static Map<String, Integer> prevSwitchOutputPackets = new HashMap<String, Integer>();
 	
-	private static Stack<Map<Topology, Double>> linkLossHistory = new Stack<Map<Topology, Double>>();
-	private static Stack<Map<String, Double>> switchLossHistory = new Stack<Map<String, Double>>();
+	private static Queue<Map<Topology, Double>> linkLossHistory = new LinkedList<Map<Topology, Double>>();
+	private static Queue<Map<String, Double>> switchLossHistory = new LinkedList<Map<String, Double>>();
 
 	protected static Logger log = 
 			LoggerFactory.getLogger(BlackholePassiveDetect.class);
@@ -81,14 +83,13 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 				}
 				
 				
-				
 				if (prevInputPackets == 0 && prevOutputPackets == 0) {
 					linkloss = 0.0;
 				} else {
 					int linkInputPacketsGrowth = linkInputPackets - prevInputPackets;
 					int linkOutputPacketsGrowth = linkOutputPackets - prevOutputPackets;
 					if (linkInputPacketsGrowth != 0) {
-						linkloss = (linkInputPacketsGrowth - linkOutputPacketsGrowth) / linkInputPacketsGrowth;
+						linkloss = (float)(linkInputPacketsGrowth - linkOutputPacketsGrowth) / (float)linkInputPacketsGrowth;
 					} else {
 						linkloss = 0.0;
 					}
@@ -101,11 +102,7 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 				linkLoss.put(topo, linkloss);
 			}
 			
-			addToLinkLossHistory(linkLoss);
-			
-			System.out.println(prevLinkInputPackets );
-			System.out.println(prevLinkOutputPackets );
-			System.out.println(linkLossHistory.size() );
+			addToLinkLossHistory(linkLoss);		
 			
 			Iterator<Entry<String, Map<String, PortCounter>>> iter = portCounter.entrySet().iterator();
 			while(iter.hasNext()) {
@@ -119,18 +116,62 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 					if (!portNumber.equals("local")) {
 						PortCounter pc = switchPCEntry.getValue();
 						// lldp packet should be removed
-						for (int i = 0; i < topolist.size(); i++) {
-							Topology topo = topolist.get(i);
-							if (topo.src_port.equals(portNumber) && topo.src_switch.equals(switchId)) {
+//						for (int i = 0; i < topolist.size(); i++) {
+//							Topology topo = topolist.get(i);
+//							if (topo.src_port.equals(portNumber) && topo.src_switch.equals(switchId)) {
 								switchInputPackets += pc.receivePackets;
 								switchOutputPackets += pc.transmitPackets;
-								break;
-							}
-						}
+//								break;
+//							}
+//						}
 					}
 				}
-//				System.out.println(switchId + " switchInputPackets: " + switchInputPackets + " switchOutputPackets: " + switchOutputPackets);
+				System.out.println(switchId + " switchInputPackets: " + switchInputPackets + " switchOutputPackets: " + switchOutputPackets);
+				
+				int prevInputPackets = 0;
+				if (prevSwitchInputPackets.containsKey(switchId)) {
+					prevInputPackets = prevSwitchInputPackets.get(switchId);
+					prevSwitchInputPackets.put(switchId, switchInputPackets);
+				} else {
+					prevSwitchInputPackets.put(switchId, switchInputPackets);
+				}
+				int prevOutputPackets = 0;
+				if (prevSwitchOutputPackets.containsKey(switchId)) {
+					prevOutputPackets = prevSwitchOutputPackets.get(switchId);
+					prevSwitchOutputPackets.put(switchId, switchOutputPackets);
+				} else {
+					prevSwitchOutputPackets.put(switchId, switchOutputPackets);
+				}
+				
+				double switchloss = 0.0;
+				if (prevInputPackets == 0 && prevOutputPackets == 0) {
+					switchloss = 0.0;
+				} else {
+					int switchInputPacketsGrowth = switchInputPackets - prevInputPackets;
+					int switchOutputPacketsGrowth = switchOutputPackets - prevOutputPackets;
+					if (switchInputPacketsGrowth == 0) {
+						switchloss = 0.0;
+					} else {
+//						System.out.println(switchInputPacketsGrowth + " " + switchOutputPacketsGrowth);
+						switchloss = (float)(switchInputPacketsGrowth - switchOutputPacketsGrowth) / (float)switchInputPacketsGrowth;
+//						System.out.println(switchloss);
+					}
+				}
+				if (switchloss < 0) {
+					// if input < output, this may cause by lldp
+					switchloss = 0.0;
+				}
+				switchLoss.put(switchId, switchloss);
 			}
+			addToSwitchLossHistory(switchLoss);
+			
+			System.out.println(prevSwitchInputPackets);
+			System.out.println(prevSwitchOutputPackets);
+			System.out.println(switchLossHistory);
+			System.out.println("----------------------------------------");
+			System.out.println(prevLinkInputPackets);
+			System.out.println(prevLinkOutputPackets);
+			System.out.println(linkLossHistory);
 			
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -143,20 +184,20 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 	public static void addToLinkLossHistory (Map<Topology, Double> linkLoss) {
 		// linkLossHistory size is 10
 		if (linkLossHistory.size() < 2 ) {
-			linkLossHistory.push(linkLoss);
+			linkLossHistory.add(linkLoss);
 		} else {
-			linkLossHistory.pop();
-			linkLossHistory.push(linkLoss);
+			linkLossHistory.remove();
+			linkLossHistory.add(linkLoss);
 		}
 	}
 	
 	public static void addToSwitchLossHistory (Map<String, Double> switchLoss) {
 		// switchLossHistory size is 10
-		if (switchLossHistory.size() <10 ) {
-			switchLossHistory.push(switchLoss);
+		if (switchLossHistory.size() <2 ) {
+			switchLossHistory.add(switchLoss);
 		} else {
-			switchLossHistory.pop();
-			switchLossHistory.push(switchLoss);
+			switchLossHistory.remove();
+			switchLossHistory.add(switchLoss);
 		}
 	}
 	
