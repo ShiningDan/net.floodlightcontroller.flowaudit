@@ -34,34 +34,6 @@ public class LoopActiveAudit extends SwitchResourceBase {
 	@Post
 	public String hasLoop(String fmJson) throws Exception{
 		
-//		String result = "";
-//		result = fmJson;
-//		System.out.println(result);
-//		
-//		List<String> dpid = new ArrayList<String>();
-//		Flow request = new Flow();
-//		
-//		try {
-//			JSONObject fmJSONObj = new JSONObject(fmJson);
-//			JSONArray dpidJSONObj = fmJSONObj.getJSONArray("dpid");
-//			for (int i = 0; i < dpidJSONObj.length(); i++) {
-//				dpid.add(dpidJSONObj.getString(i));
-//			}
-//			JSONObject matchJSONObj = fmJSONObj.getJSONObject("match");
-//			request.addValue(matchJSONObj);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return "the input format do not match with JSON format";
-//		}
-//		
-//		// parse request
-//		List<Topology> topolist = getTopo("127.0.0.1", "8080");
-//		
-//		// start audit from dpid[0]
-//		int dpidIndex = 0;
-//		List<SwitchFlow> routes = new ArrayList<SwitchFlow>();
-		
 		String result = "";
 		result = fmJson;
 		List<SwitchFlow> switchflows = new ArrayList<SwitchFlow>();
@@ -128,6 +100,13 @@ public class LoopActiveAudit extends SwitchResourceBase {
 			}
 			request = (Flow)switchflows.get(0).flow.clone();
 			request.priority = -1;
+			for (int i = 0; i < switchflows.size(); i++) {
+				if (switchflows.get(i).switchId.equals(srcSwitch)) {
+					request = (Flow)switchflows.get(i).flow.clone();
+					dpidIndex = i;
+					break;
+				}
+			}
 			ra = new RequestAudit(request);
 			highPriSwitchflow.switchId = srcSwitch;
 		}
