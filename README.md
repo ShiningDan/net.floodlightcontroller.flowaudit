@@ -1,3 +1,4 @@
+
 # net.floodlightcontroller.flowaudit
 
 ## 项目介绍
@@ -158,6 +159,7 @@ public String basePath() {
 
 首先，我们启动 floodlight，然后使用 mininet 创建一个网络。
 
+<<<<<<< HEAD
 ```
  sudo mn --custom /home/floodlight/mininet/topo/4-sw-4-h-loop.py --topo mytopo --controller=remote,ip=127.0.0.1,port=6653 --mac --switch=ovsk,protocols=OpenFlow13 --link tc
 ```
@@ -390,6 +392,4 @@ application/json
 ```
 http://localhost:8080/flow/audit/backhole/passive/json
 ```
-
-
 
