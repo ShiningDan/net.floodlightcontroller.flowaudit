@@ -74,6 +74,8 @@ public class LoopActiveAudit extends SwitchResourceBase {
 	private String traverseToFindLoop (List<SwitchFlow> switchflows, int dpidIndex, String srcSwitch, List<Topology> topolist, List<SwitchFlow> routes) throws Exception{
 		String result = "";
 		
+		System.out.println(System.nanoTime());
+		
 		List<Flow> flowlist = null;
 		RequestAudit ra;
 		Flow request;
