@@ -1,4 +1,4 @@
-
+﻿
 # net.floodlightcontroller.flowaudit
 
 ## 项目介绍
@@ -16,6 +16,16 @@
 ```
 git clone https://github.com/ShiningDan/net.floodlightcontroller.flowaudit.git
 ```
+
+将 GitHub 下载的外部库导入到 Refrenced Libraeies 中：
+
+目前涉及到的外部库有 `org.json.jar`，将外部库拷贝到 `<floodlight-root>/lib/` 下面
+
+在 eclipse 下面的  Refrenced Libraeies 右键，选择 Build Path，然后点击 Configure Build Path。
+
+在打开的窗口中，点击 Add JARs，选择 `floodlight/lib/org.json.jar` ，点击 OK，如下图：
+
+![](http://ojt6zsxg2.bkt.clouddn.com/b89d9a53721831475b33d89f5d8ad809.png)
 
 然后，在 floodlight 中创建一个 `flowaudit` 的 package。
 
