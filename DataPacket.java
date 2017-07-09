@@ -183,7 +183,7 @@ public class DataPacket {
 				result += "dst_port : " + this.dst_port + ", ";
 			}
 			if (this.action != null) {
-				result += "action : " + this.action + ", ";
+				result += "action : " + this.action + "";
 			}
 			
 			return result;

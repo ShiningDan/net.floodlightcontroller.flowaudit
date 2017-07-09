@@ -160,10 +160,13 @@ public class BlackholeActiveAudit extends SwitchResourceBase {
 				}
 				
 			}else {
-				System.out.println("---------------flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end -----------------");
-				result.put("result", false);
-				result.put("reason", "flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end.");
+				System.out.println("-------------------pass switch: " + srcSwitch + " as flow entry: " + highPriFlow + "-----------------");
+				System.out.println("---------------------flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch + "-----------------");
+				System.out.println(routes);
+				result.put("result", true);
+				result.put("reason", "flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch);
 				result.put("routes", routes.toString());
+				return result;
 				
 //				return "flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end.";
 			}
