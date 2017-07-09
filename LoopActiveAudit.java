@@ -17,6 +17,9 @@ import net.floodlightcontroller.flowaudit.DataPacket.Topology;
 
 public class LoopActiveAudit extends SwitchResourceBase {
 	
+	public static long bTime = 0;
+	public static long eTime = 0;
+	
 	protected static Logger log = 
 			LoggerFactory.getLogger(LoopActiveAudit.class);
 	
@@ -34,8 +37,9 @@ public class LoopActiveAudit extends SwitchResourceBase {
 	@Post
 	public String hasLoop(String fmJson) throws Exception{
 		
-		String result = "";
-		result = fmJson;
+//		String result = "";
+		JSONObject result = null;
+//		result = fmJson;
 		List<SwitchFlow> switchflows = new ArrayList<SwitchFlow>();
 		
 		try {
@@ -67,14 +71,22 @@ public class LoopActiveAudit extends SwitchResourceBase {
 		
 		
 		result = this.traverseToFindLoop(switchflows, dpidIndex, switchflows.get(dpidIndex).switchId, topolist, routes);
-		
-		return result;
+		System.out.println(result.toString());
+		return result.toString();
 	}
 	
-	private String traverseToFindLoop (List<SwitchFlow> switchflows, int dpidIndex, String srcSwitch, List<Topology> topolist, List<SwitchFlow> routes) throws Exception{
-		String result = "";
+	private JSONObject traverseToFindLoop (List<SwitchFlow> switchflows, int dpidIndex, String srcSwitch, List<Topology> topolist, List<SwitchFlow> routes) throws Exception{
+//		String result = "";
+		JSONObject result = new JSONObject();
 		
-		System.out.println(System.nanoTime());
+		if (bTime == 0) {
+			bTime = System.nanoTime();
+		} else {
+			eTime = System.nanoTime();
+			System.out.println("time to cal is: " + (eTime - bTime));
+			bTime = 0;
+			eTime = 0;
+		}
 		
 		List<Flow> flowlist = null;
 		RequestAudit ra;
@@ -113,8 +125,12 @@ public class LoopActiveAudit extends SwitchResourceBase {
 			highPriSwitchflow.switchId = srcSwitch;
 		}
 		
+//		System.out.println("-----------------------");
+//		System.out.println("flowlist:" + flowlist);
+//		System.out.println("-----------------------");
+		
 		System.out.println("-----------------------");
-		System.out.println("flowlist:" + flowlist);
+		System.out.println("routes:" + routes);
 		System.out.println("-----------------------");
 		
 		// get flow match result
@@ -122,14 +138,15 @@ public class LoopActiveAudit extends SwitchResourceBase {
 		
 		if (highPriFlow.priority == -1) {
 			System.out.println("--------------  no flow entry or request matches the flow on switch: " + srcSwitch + " -------------------");
-			return "no flow entry or request matches the flow on switch: " + srcSwitch;
+			routes.add(highPriSwitchflow);
+			result.put("result", false);
+			result.put("reason",  "no flow entry or request matches the flow on switch: " + srcSwitch);
+			result.put("routes", routes.toString());
+			return result;
+//			return "no flow entry or request matches the flow on switch: " + srcSwitch;
 		}
 		
 		highPriSwitchflow.flow = highPriFlow;
-		
-		System.out.println("-----------------------");
-		System.out.println("routes:" + routes);
-		System.out.println("-----------------------");
 		
 		
 		// if the return highPriFlow is request, then go on traverse dpid
@@ -139,8 +156,12 @@ public class LoopActiveAudit extends SwitchResourceBase {
 			// check in the routes
 			if (routes.contains(highPriSwitchflow)) {
 				routes.add(highPriSwitchflow);
-				System.out.println("----------------- flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes + "----------------");
-				return ("flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes);
+				System.out.println("----------------- flows follow by the switch " + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop ----------------");
+				result.put("result", true);
+				result.put("reason", "flows follow by the switch " + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop");
+				result.put("routes", routes.toString());
+				return result;
+//				return ("flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes);
 			}
 			// highPriSwitchflow not in the routes
 			routes.add(highPriSwitchflow);
@@ -169,11 +190,20 @@ public class LoopActiveAudit extends SwitchResourceBase {
 				}
 				
 				System.out.println("---------------flows follow by the switch : " + srcSwitch + " and the request: " + highPriFlow + " and may leads to a host ---------------");
-				return ("flows follow by the switch : " + srcSwitch + " and the request: " + highPriFlow + " and may leads to a host");
+				result.put("result", false);
+				result.put("reason", "flows follow by the switch : " + srcSwitch + " and the request: " + highPriFlow + " and may leads to a host");
+				result.put("routes", routes.toString());
+				return result;
+//				return ("flows follow by the switch : " + srcSwitch + " and the request: " + highPriFlow + " and may leads to a host");
 				
 			} else {
 				System.out.println("---------------flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end -----------------");
-				return "flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end.";
+				result.put("result", false);
+				result.put("reason", "flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end.");
+				result.put("routes", routes.toString());
+				return result;
+				
+//				return "flows follow by the switch : " + srcSwitch + " and the request: " + request + " and end.";
 			}
 		}
 			
@@ -183,8 +213,13 @@ public class LoopActiveAudit extends SwitchResourceBase {
 		// check in the routes
 		if (routes.contains(highPriSwitchflow)) {
 			routes.add(highPriSwitchflow);
-			System.out.println("----------------- flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes + "----------------");
-			return ("flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes);
+			System.out.println("----------------- flows follow by the switch " + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop ----------------");
+			result.put("result", true);
+			result.put("reason", "flows follow by the switch " + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop");
+			result.put("routes", routes.toString());
+			return result;
+			
+//			return ("flows follow by the swich" + highPriSwitchflow.switchId + " and request: " + highPriSwitchflow.flow + "and catch in a loop : " + routes);
 		}
 		// highPriSwitchflow not in the routes
 		routes.add(highPriSwitchflow);
@@ -202,12 +237,22 @@ public class LoopActiveAudit extends SwitchResourceBase {
 			}
 			
 			System.out.println("---------------flows follow by the switch : " + srcSwitch + " and the flowentry : " + highPriFlow + " and may leads to a host ---------------");
-			return ("flows follow by the switch : " + srcSwitch + " and the flowentry: " + highPriFlow + " and may leads to a host");
+			result.put("result", false);
+			result.put("reason", "flows follow by the switch : " + srcSwitch + " and the flowentry: " + highPriFlow + " and may leads to a host");
+			result.put("routes", routes.toString());
+			return result;
+			
+//			return ("flows follow by the switch : " + srcSwitch + " and the flowentry: " + highPriFlow + " and may leads to a host");
 			
 		} else {
 			
 			System.out.println("---------------------flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch + "-----------------");
-			return "flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch;
+			result.put("result", false);
+			result.put("reason", "flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch);
+			result.put("routes", routes.toString());
+			return result;
+			
+//			return "flows end with a black hole and the cause flow entry is : " + highPriFlow + "on the switch: " + srcSwitch;
 		}
 			
 			

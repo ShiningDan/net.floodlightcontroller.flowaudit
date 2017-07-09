@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Stack;
 
+import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,9 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 			LoggerFactory.getLogger(BlackholePassiveDetect.class);
 	
 	@Get("json")
-	public Map<String, Map<String, String>> retrieve(){
+	public String retrieve(){
+		JSONObject result = new JSONObject();
+		
 		Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 		
 		try {
@@ -173,10 +176,14 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 			System.out.println(prevLinkOutputPackets);
 			System.out.println(linkLossHistory);
 			
+			result.put("switchLoss", switchLossHistory.toString());
+			result.put("linkLoss", linkLossHistory.toString());
+			System.out.println(result.toString());
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
-			return map;
+			return result.toString();
 		}
 		
 	}

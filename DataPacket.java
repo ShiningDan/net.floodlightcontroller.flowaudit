@@ -21,7 +21,7 @@ public class DataPacket {
 	   public String dst_port;
 	   
 	   public String toString() {
-		   return "\"Topology\" : {\"src_siwtch\" :" + this.src_switch + ", \"src_port\" :" + this.src_port + ", \"dst_switch\" :" + this.dst_switch + ", \"dst_port\" :" + this.dst_port;  
+		   return "Topology : {src_siwtch :" + this.src_switch + ", src_port :" + this.src_port + ", dst_switch :" + this.dst_switch + ", dst_port :" + this.dst_port + "}";  
 	   }
 	}
 	public static class IPAddress implements Cloneable{
