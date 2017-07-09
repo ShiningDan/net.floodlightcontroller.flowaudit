@@ -327,6 +327,8 @@ HTTPRequest 下发的流表做的事情，就是满足匹配域的流量，按�
 
 路由黑洞的主动审计，主要的方法是得到数据流的转发规则，判断在路线上有没有 `action:drop` 或者没有 `action` 规则。
 
+#### 发送请求和已有的流表组成路由黑洞
+
 首先，我们启动 floodlight，然后使用 mininet 创建一个网络。
 
 ```
@@ -394,6 +396,48 @@ application/json
 
 然后改流量会在 switch3 中被 `action:drop` 捕获到。下发这个请求的时候，可以从 Console 和 返回的数据得到相关的消息。
 
+#### 发送请求本身就是一个路由黑洞
+
+首先，我们启动 floodlight，然后使用 mininet 创建一个网络。
+
+```
+sudo mn --custom /home/floodlight/mininet/topo/3-sw-3-h-blackhole.py --topo mytopo --controller=remote,ip=127.0.0.1,port=6653 --mac --switch=ovsk,protocols=OpenFlow13
+```
+
+然后设置 HTTPRequest：
+
+设置 URL：
+
+```
+http://localhost:8080/flow/audit/backhole/json
+```
+
+设置 Content type：
+
+```
+application/json
+```
+
+然后我们可以在 HTTPRequest 中下发请求：
+
+```
+{
+    flowentries: [
+        {
+             dpid: "00:00:00:00:00:00:00:01",
+             match: {
+                 ipv4_src: "10.0.0.1",
+                 ipv4_dst: "10.0.0.3"
+             },
+             priority: "65529",
+             action: "drop"
+        }
+    ]
+}
+```
+
+最后会返回查询到路由黑洞的结果
+
 ### 黑洞的被动审计
 
 黑洞的被动审计，使用的是 OpenFlow 自带的 Counter 来计算。所以，发送 GET 请求，或者在浏览器输入 URL 即可：
@@ -401,4 +445,14 @@ application/json
 ```
 http://localhost:8080/flow/audit/backhole/passive/json
 ```
+
+#### 黑洞的被动检测示例
+
+我们使用另一个脚本来创建网络，这个脚本在定义链路的时候就给链路添加了丢包率：
+
+```
+sudo mn --custom /home/floodlight/mininet/topo/3-sw-3-h-bh-loss.py --topo mytopo --controller=remote,ip=127.0.0.1,port=6653 --mac --switch=ovsk,protocols=OpenFlow13 --link tc
+```
+
+然后在链路中产生流量，即可检测到路由黑洞的存在。
 
