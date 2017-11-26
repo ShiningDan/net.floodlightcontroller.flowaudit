@@ -335,7 +335,7 @@ HTTPRequest 下发的流表做的事情，就是满足匹配域的流量，按�
 sudo mn --custom /home/floodlight/mininet/topo/3-sw-3-h-blackhole.py --topo mytopo --controller=remote,ip=127.0.0.1,port=6653 --mac --switch=ovsk,protocols=OpenFlow13
 ```
 
-然后在交换机中生成已有的一些流表，这些流表我写在了脚本文件 `before-loop2.sh` 中，我们可以查看其中的流表内容：
+然后在交换机中生成已有的一些流表，这些流表我写在了脚本文件 `before-blackhole.sh ` 中，我们可以查看其中的流表内容：
 
 ```
 ovs-ofctl -O OpenFlow13 add-flow s1 in_port=1,ip,nw_src=10.0.0.0/24,priority:65535,action=output:2
@@ -358,7 +358,7 @@ sudo sh ./before-blackhole.sh
 设置 URL：
 
 ```
-http://localhost:8080/flow/audit/backhole/json
+http://localhost:8080/flow/audit/backhole/active/json
 ```
 
 设置 Content type：
@@ -409,7 +409,7 @@ sudo mn --custom /home/floodlight/mininet/topo/3-sw-3-h-blackhole.py --topo myto
 设置 URL：
 
 ```
-http://localhost:8080/flow/audit/backhole/json
+http://localhost:8080/flow/audit/backhole/active/json
 ```
 
 设置 Content type：
