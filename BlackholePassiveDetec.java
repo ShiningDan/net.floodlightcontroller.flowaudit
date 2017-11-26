@@ -23,9 +23,9 @@ public class BlackholePassiveDetec extends SwitchResourceBase {
 		
 		Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 		try {
-			List<Topology> topolist = getTopo("127.0.0.1", "8080");
-			List<String> dpidlist = this.getDpid("127.0.0.1", "8080");
-			List<String> sflowMetric = this.getSFlowMetric("127.0.0.1", "8008");
+			List<Topology> topolist = getTopo("127.0.0.1");
+			List<String> dpidlist = this.getDpid("127.0.0.1");
+			List<String> sflowMetric = this.getSFlowMetric("127.0.0.1");
 			List<DataItem> itemlist = this.getItem(this.getIndex(sflowMetric), sflowMetric);
 			for (int i = 0; i < dpidlist.size(); i++) {
 				Map<String, String> IDmap = new HashMap<String, String>();

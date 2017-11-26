@@ -73,6 +73,8 @@ public class SwitchResourceBase extends ServerResource {
 		super.doInit();
 
 	}
+	
+	protected String port = "";
 
 	/**
 	 * Use for requests that originate from the REST server that use their context to get a
@@ -236,8 +238,8 @@ public class SwitchResourceBase extends ServerResource {
 	
 	
 	// get port count
-	public static Map<String, Map<String, PortCounter>> getPortCounter(String ip, String port) {
-		
+	public Map<String, Map<String, PortCounter>> getPortCounter(String ip) {
+		this.port = (String)getContext().getAttributes().get("port");
 		try {
 			Map<String, Map<String, PortCounter>> switchPortCounter= new HashMap<String, Map<String, PortCounter>>();
 			InputStreamReader intopo = new InputStreamReader(new URL("http://" + ip + ":" + port + "/wm/core/switch/all/port/json").openStream());
@@ -276,8 +278,8 @@ public class SwitchResourceBase extends ServerResource {
 	}
 	
 	//get topology
-	public static List<Topology> getTopo(String ip, String port) {
-		
+	public List<Topology> getTopo(String ip) {
+		this.port = (String)getContext().getAttributes().get("port");
 		try {
 			List<Topology> topolist = new ArrayList<Topology>();
 			InputStreamReader intopo = new InputStreamReader(new URL("http://" + ip + ":" + port + "/wm/topology/links/json").openStream());
@@ -315,8 +317,8 @@ public class SwitchResourceBase extends ServerResource {
 	
 	
 	
-	public static List<String> getDpid(String ip, String port) {
-		
+	public List<String> getDpid(String ip) {
+		this.port = (String)getContext().getAttributes().get("port");
 		try {
 			List<String> switchID = new ArrayList<String>();
 			InputStreamReader intopo = new InputStreamReader(new URL("http://" + ip + ":" + port + "/wm/topology/links/json").openStream());
@@ -348,8 +350,8 @@ public class SwitchResourceBase extends ServerResource {
 		}
 	}
 	
-	public static List<String> getSFlowMetric(String ip, String port) {
-		
+	public List<String> getSFlowMetric(String ip) {
+		this.port = (String)getContext().getAttributes().get("port");
 		try {
 			List<String> list = new ArrayList<String>();
 			InputStreamReader intopo = new InputStreamReader(new URL("http://" + ip + ":" + port + "/metric/" + ip + "/json").openStream());

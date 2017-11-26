@@ -58,6 +58,12 @@ net.floodlightcontroller.statistics.StatisticsCollector,\
 net.floodlightcontroller.flowaudit.StartFlowAudit
 ```
 
+还要再添加 httpPort
+
+```
+net.floodlightcontroller.flowaudit.StartFlowAudit.httpPort=8080
+```
+
 最后，修改 `src/main/resource/META-INF/services` 下的 `net.floodlightcontroller.core.module.IFloodlightModule`，将 `flowaudit` 中的 `StartFlowAudit` 文件添加到项目模块启动列表中。
 
 ```

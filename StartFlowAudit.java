@@ -18,6 +18,8 @@ public class StartFlowAudit implements IFloodlightModule{
 	protected IFloodlightProviderService floodlightProvider;
 	protected static Logger logger;
 	protected IRestApiService restApiService;
+	
+	private static final String httpPort = "httpPort";
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleServices() {
@@ -48,7 +50,8 @@ public class StartFlowAudit implements IFloodlightModule{
 
 	@Override
 	public void startUp(FloodlightModuleContext context) throws FloodlightModuleException {
-		restApiService.addRestletRoutable(new FlowAuditRoutable());
+		String port = context.getConfigParams(this).get(httpPort);
+		restApiService.addRestletRoutable(new FlowAuditRoutable(port));
 		
 	}
 

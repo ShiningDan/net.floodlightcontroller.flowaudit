@@ -29,6 +29,7 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 
 	protected static Logger log = 
 			LoggerFactory.getLogger(BlackholePassiveDetect.class);
+	private static final String httpPort = "httpPort";
 	
 	@Get("json")
 	public String retrieve(){
@@ -37,9 +38,10 @@ public class BlackholePassiveDetect extends SwitchResourceBase {
 		Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 		
 		try {
-			List<Topology> topolist = getTopo("127.0.0.1", "8080");
-			List<String> dpidlist = this.getDpid("127.0.0.1", "8080");
-			Map<String, Map<String, PortCounter>> portCounter = this.getPortCounter("127.0.0.1", "8080");
+			System.out.println(httpPort);
+			List<Topology> topolist = getTopo("127.0.0.1");
+			List<String> dpidlist = this.getDpid("127.0.0.1");
+			Map<String, Map<String, PortCounter>> portCounter = this.getPortCounter("127.0.0.1");
 //			System.out.println(topolist);
 //			System.out.println(dpidlist);
 //			System.out.println(portCounter);

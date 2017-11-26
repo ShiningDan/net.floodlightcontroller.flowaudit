@@ -13,15 +13,10 @@ import net.floodlightcontroller.flowaudit.DataPacket.IPAddress;
 
 public class FlowList {
 	
+	
 	List<Flow> flowlist = new ArrayList<Flow>();
 	String ip;
 	String port;
-	
-	public FlowList(String dpid) {
-		this.ip = "127.0.0.1";
-		this.port = "8080";
-		this.GetFlow(dpid, ip, port);
-	}
 	
 	public FlowList(String dpid, String ip, String port) {
 		this.ip = ip;

@@ -21,7 +21,6 @@ public class BlackholeActiveAudit extends SwitchResourceBase {
 	protected static Logger log = 
 			LoggerFactory.getLogger(BlackholeActiveAudit.class);
 	
-	
 	@Get("json")
 	public String retrieve(){
 		return "this url is used for black hole active detect using POST, please send info";
@@ -64,7 +63,7 @@ public class BlackholeActiveAudit extends SwitchResourceBase {
 		}
 		
 		// parse request
-		List<Topology> topolist = getTopo("127.0.0.1", "8080");
+		List<Topology> topolist = getTopo("127.0.0.1");
 		
 		// start audit from dpid[0]
 		int dpidIndex = 0;
@@ -85,7 +84,7 @@ public class BlackholeActiveAudit extends SwitchResourceBase {
 		Flow request;
 		SwitchFlow highPriSwitchflow = new SwitchFlow();
 		if (dpidIndex != -1) {
-			flowlist = new FlowList(switchflows.get(dpidIndex).switchId).getFlowList();
+			flowlist = new FlowList(switchflows.get(dpidIndex).switchId, "127.0.0.1", port).getFlowList();
 			// add routes exist flows
 			for (int i = 0; i < routes.size(); i++) {
 				if (routes.get(i).switchId.equals(switchflows.get(dpidIndex).switchId)) {
@@ -97,7 +96,7 @@ public class BlackholeActiveAudit extends SwitchResourceBase {
 			highPriSwitchflow.switchId = switchflows.get(dpidIndex).switchId;
 
 		} else {
-			flowlist = new FlowList(srcSwitch).getFlowList();
+			flowlist = new FlowList(srcSwitch, "127.0.0.1", port).getFlowList();
 			// add routes exist flows
 			for (int i = 0; i < routes.size(); i++) {
 				if (routes.get(i).switchId.equals(srcSwitch)) {

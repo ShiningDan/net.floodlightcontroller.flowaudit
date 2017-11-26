@@ -20,6 +20,8 @@ public class LoopActiveAudit extends SwitchResourceBase {
 	public static long bTime = 0;
 	public static long eTime = 0;
 	
+	private static final String httpPort = "httpPort";
+	
 	protected static Logger log = 
 			LoggerFactory.getLogger(LoopActiveAudit.class);
 	
@@ -63,7 +65,7 @@ public class LoopActiveAudit extends SwitchResourceBase {
 		}
 		
 		// parse request
-		List<Topology> topolist = getTopo("127.0.0.1", "8080");
+		List<Topology> topolist = getTopo("127.0.0.1");
 		
 		// start audit from dpid[0]
 		int dpidIndex = 0;
@@ -93,7 +95,7 @@ public class LoopActiveAudit extends SwitchResourceBase {
 		Flow request;
 		SwitchFlow highPriSwitchflow = new SwitchFlow();
 		if (dpidIndex != -1) {
-			flowlist = new FlowList(switchflows.get(dpidIndex).switchId).getFlowList();
+			flowlist = new FlowList(switchflows.get(dpidIndex).switchId, "127.0.0.1", port).getFlowList();
 			// add routes exist flows
 			for (int i = 0; i < routes.size(); i++) {
 				if (routes.get(i).switchId.equals(switchflows.get(dpidIndex).switchId)) {
@@ -105,7 +107,7 @@ public class LoopActiveAudit extends SwitchResourceBase {
 			highPriSwitchflow.switchId = switchflows.get(dpidIndex).switchId;
 
 		} else {
-			flowlist = new FlowList(srcSwitch).getFlowList();
+			flowlist = new FlowList(srcSwitch, "127.0.0.1", port).getFlowList();
 			// add routes exist flows
 			for (int i = 0; i < routes.size(); i++) {
 				if (routes.get(i).switchId.equals(srcSwitch)) {

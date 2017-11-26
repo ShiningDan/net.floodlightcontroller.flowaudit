@@ -31,7 +31,7 @@ public class RequestAudit {
 	
 	//get flows that has overlaps with request
 	public Flow matchFlow(List<Flow> flowlist) {
-		
+		System.out.println(flowlist.size());
 		
 		Flow result = null;
 		
